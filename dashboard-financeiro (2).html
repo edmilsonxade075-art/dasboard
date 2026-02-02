@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Plataforma-Simples | Dashboard</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --secondary: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), #6d28d9);
+      color: #fff;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(79, 70, 229, 0.3);
+    }
+
+    header h1 { 
+      font-size: 1.5rem; 
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .header-actions a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+
+    .header-actions a:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.15);
+      padding: 8px 16px;
+      border-radius: 20px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text);
+    }
+
+    .card-icon {
+      font-size: 1.5rem;
+    }
+
+    .saldo {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: var(--primary);
+      margin: 10px 0;
+    }
+
+    .ocultar {
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    .ocultar:hover {
+      background: var(--bg);
+    }
+
+    .input-group {
+      margin-top: 16px;
+    }
+
+    input[type="number"], 
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 0.95rem;
+      transition: border-color 0.3s;
+      min-height: 44px; /* Touch target mínimo */
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    input[type="number"]:focus,
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      min-height: 44px; /* Touch target mínimo para mobile */
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    /* Melhorar toque em mobile */
+    @media (hover: none) and (pointer: coarse) {
+      button:hover {
+        transform: none;
+      }
+      
+      button:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+      
+      .card:hover {
+        transform: none;
+      }
+      
+      a:active,
+      .ocultar:active {
+        opacity: 0.7;
+      }
+    }
+
+    .depositar { 
+      background: var(--secondary); 
+      color: #fff; 
+    }
+
+    .retirar { 
+      background: var(--primary); 
+      color: #fff; 
+    }
+
+    .investir-btn {
+      background: var(--warning);
+      color: #fff;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    ul li {
+      padding: 10px 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--bg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    ul li:last-child {
+      border-bottom: none;
+    }
+
+    .status {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .ok { color: var(--secondary); }
+    .error { color: var(--danger); }
+
+    .alert {
+      background: #eef2ff;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      border-left: 4px solid var(--primary);
+      animation: slideIn 0.3s ease;
+    }
+
+    .alert.success {
+      background: #f0fdf4;
+      border-left-color: var(--secondary);
+    }
+
+    .alert.warning {
+      background: #fffbeb;
+      border-left-color: var(--warning);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 220px !important;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    thead tr {
+      background: var(--bg);
+      text-align: left;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr:hover {
+      background: var(--bg);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge.success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge.info {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .stat-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--bg);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      transition: width 0.5s ease;
+    }
+
+    .notification-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--danger);
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: 6px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    /* Estilos para Autenticação */
+    .auth-screen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--primary), #6d28d9);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .auth-screen.active {
+      display: flex;
+    }
+
+    .auth-container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 450px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: authSlide 0.5s ease;
+    }
+
+    @keyframes authSlide {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .auth-logo .logo {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary), #6d28d9);
+      margin: 0 auto 16px;
+      font-size: 2rem;
+    }
+
+    .auth-logo h1 {
+      font-size: 1.8rem;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .auth-logo p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .auth-form {
+      display: none;
+    }
+
+    .auth-form.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .auth-form h2 {
+      font-size: 1.4rem;
+      color: var(--text);
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"],
+    .form-group input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .auth-form a {
+      text-decoration: none;
+      transition: opacity 0.3s;
+    }
+
+    .auth-form a:hover {
+      opacity: 0.8;
+    }
+
+    /* Responsivo para Auth */
+    @media (max-width: 768px) {
+      .auth-container {
+        padding: 30px 24px;
+        max-width: 100%;
+      }
+
+      .auth-logo h1 {
+        font-size: 1.5rem;
+      }
+
+      .auth-form h2 {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .auth-screen {
+        padding: 12px;
+      }
+
+      .auth-container {
+        padding: 24px 16px;
+      }
+
+      .auth-logo .logo {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+      }
+
+      .auth-logo h1 {
+        font-size: 1.3rem;
+      }
+
+      .form-group input {
+        font-size: 0.9rem;
+        padding: 10px;
+      }
+    }
+
+    .whatsapp-btn {
+      background: #25D366;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      transition: all 0.3s;
+      margin-top: 12px;
+    }
+
+    .whatsapp-btn:hover {
+      background: #20BA5A;
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+      header { 
+        flex-direction: column; 
+        gap: 12px; 
+        text-align: center;
+        padding: 16px;
+      }
+      
+      header h1 {
+        font-size: 1.3rem;
+      }
+      
+      .header-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+        gap: 8px;
+      }
+
+      .header-actions a {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
+
+      .user-info {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+      }
+
+      .container {
+        padding: 12px;
+        gap: 12px;
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .card[style*="grid-column: span"] {
+        grid-column: span 1 !important;
+      }
+
+      .saldo {
+        font-size: 1.6rem;
+      }
+
+      .card h2 {
+        font-size: 0.95rem;
+      }
+
+      .card-icon {
+        font-size: 1.2rem;
+      }
+
+      table {
+        font-size: 0.75rem;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      th, td {
+        padding: 6px;
+      }
+
+      .actions {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      button {
+        padding: 10px;
+        font-size: 0.85rem;
+      }
+
+      .investir-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+      }
+
+      ul li {
+        font-size: 0.85rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .stat-value {
+        font-size: 1.3rem;
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+      }
+
+      canvas {
+        height: 180px !important;
+      }
+
+      .modal-content {
+        width: 95%;
+        padding: 20px;
+      }
+
+      .whatsapp-btn {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+      }
+
+      input[type="number"],
+      input[type="text"],
+      textarea {
+        font-size: 0.9rem;
+        padding: 10px;
+      }
+
+      .alert {
+        font-size: 0.8rem;
+        padding: 10px;
+      }
+
+      .badge {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+      }
+
+      /* Melhorar visualização de vídeos em mobile */
+      #videosList li {
+        padding: 12px 0;
+      }
+
+      #videosList li span {
+        margin-bottom: 8px;
+      }
+
+      #videosList button {
+        width: 100%;
+        margin-top: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 1.1rem;
+      }
+
+      .logo {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+      }
+
+      .saldo {
+        font-size: 1.4rem;
+      }
+
+      .card {
+        padding: 12px;
+      }
+
+      table {
+        font-size: 0.7rem;
+      }
+
+      .header-actions a {
+        font-size: 0.75rem;
+        padding: 5px 10px;
+      }
+
+      .user-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 0.85rem;
+      }
+
+      .notification-dot {
+        width: 6px;
+        height: 6px;
+      }
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 90%;
+      animation: modalSlide 0.3s ease;
+    }
+
+    @keyframes modalSlide {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Tela de Login/Registro -->
+<div id="authScreen" class="auth-screen active">
+  <div class="auth-container">
+    <div class="auth-logo">
+      <div class="logo">💰</div>
+      <h1>Workhome</h1>
+      <p>Plataforma de Investimentos</p>
+    </div>
+
+    <!-- Formulário de Login -->
+    <div id="loginForm" class="auth-form active">
+      <h2>Entrar na Conta</h2>
+      <form onsubmit="fazerLogin(event)">
+        <div class="form-group">
+          <label>Email ou Telefone</label>
+          <input type="text" id="loginEmail" placeholder="seu@email.com ou +244..." required>
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" id="loginSenha" placeholder="Sua senha" required>
+        </div>
+        <button type="submit" class="depositar" style="width: 100%;">
+          🔐 Entrar
+        </button>
+      </form>
+      <p style="text-align: center; margin-top: 16px; font-size: 0.9rem;">
+        Não tem conta? 
+        <a href="#" onclick="mostrarRegistro()" style="color: var(--primary); font-weight: 600;">Criar Conta</a>
+      </p>
+    </div>
+
+    <!-- Formulário de Registro -->
+    <div id="registroForm" class="auth-form">
+      <h2>Criar Nova Conta</h2>
+      <form onsubmit="criarConta(event)">
+        <div class="form-group">
+          <label>Nome Completo</label>
+          <input type="text" id="regNome" placeholder="Seu nome completo" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="regEmail" placeholder="seu@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Telefone (WhatsApp)</label>
+          <input type="tel" id="regTelefone" placeholder="+244 921 402 002" required>
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" id="regSenha" placeholder="Mínimo 6 caracteres" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label>Confirmar Senha</label>
+          <input type="password" id="regConfirmarSenha" placeholder="Repita sua senha" required minlength="6">
+        </div>
+        <div class="form-group" style="display: flex; gap: 8px; align-items: flex-start;">
+          <input type="checkbox" id="regTermos" required style="width: auto; min-height: auto; margin-top: 4px;">
+          <label for="regTermos" style="font-size: 0.85rem;">
+            Concordo com os <a href="#" style="color: var(--primary);">Termos de Uso</a> e 
+            <a href="#" style="color: var(--primary);">Política de Privacidade</a>
+          </label>
+        </div>
+        <button type="submit" class="depositar" style="width: 100%;">
+          ✅ Criar Conta
+        </button>
+      </form>
+      <p style="text-align: center; margin-top: 16px; font-size: 0.9rem;">
+        Já tem conta? 
+        <a href="#" onclick="mostrarLogin()" style="color: var(--primary); font-weight: 600;">Fazer Login</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Dashboard (inicialmente oculto) -->
+<div id="dashboardScreen" style="display: none;">
+
+<header>
+  <h1>
+    <div class="logo">💰</div>
+    Workhome
+  </h1>
+  <div class="header-actions">
+    <a href="#" onclick="mostrarNotificacoes()">
+      📬 Notificações 
+      <span class="notification-dot"></span>
+    </a>
+    <a href="#">⚙️ Configurações</a>
+    <div class="user-info">
+      <div class="user-avatar" id="userAvatar">U</div>
+      <span id="userName">Usuário</span>
+    </div>
+    <a href="#" onclick="fazerLogout()" style="color: #fff;">🚪 Sair</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- Saldo Principal -->
+  <section class="card" style="grid-column: span 2;">
+    <h2>
+      <span><span class="card-icon">💵</span> Saldo Total</span>
+      <span class="ocultar" onclick="toggleSaldo()">👁️ Ocultar</span>
+    </h2>
+    <div id="saldo" class="saldo">12.450,00 Kz</div>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 75%"></div>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--muted); margin-top: 8px;">Meta mensal: 16.000,00 Kz</p>
+    
+    <div class="input-group">
+      <input id="valor" type="number" placeholder="Valor em Kz" min="0" step="0.01">
+      <div class="actions">
+        <button class="depositar" onclick="depositar()">💰 Depositar</button>
+        <button class="retirar" onclick="retirar()">💸 Retirar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Estatísticas Rápidas -->
+  <section class="card">
+    <h2><span class="card-icon">📊</span> Estatísticas</h2>
+    <div class="stat-card">
+      <div>
+        <div class="stat-label">Ganhos Hoje</div>
+        <div class="stat-value ok" id="ganhosHoje">+0 Kz</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div>
+        <div class="stat-label">Investimentos Ativos</div>
+        <div class="stat-value">3</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div>
+        <div class="stat-label">Taxa de Retorno</div>
+        <div class="stat-value ok">+18,4%</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Resumo Financeiro -->
+  <section class="card">
+    <h2><span class="card-icon">💹</span> Resumo Financeiro</h2>
+    <ul>
+      <li>
+        <span>Ganhos Totais</span>
+        <strong class="ok">+ 2.150 Kz</strong>
+      </li>
+      <li>
+        <span>Perdas</span>
+        <strong class="error">- 320 Kz</strong>
+      </li>
+      <li>
+        <span>Rendimento Médio</span>
+        <strong class="ok">+18,4%</strong>
+      </li>
+      <li>
+        <span>Período</span>
+        <span class="badge info">6 meses</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Indicadores -->
+  <section class="card">
+    <h2><span class="card-icon">📈</span> Indicadores de Performance</h2>
+    <ul>
+      <li>
+        <span>Hoje</span>
+        <strong class="ok">+0,8%</strong>
+      </li>
+      <li>
+        <span>Esta Semana</span>
+        <strong class="ok">+3,2%</strong>
+      </li>
+      <li>
+        <span>Este Mês</span>
+        <strong class="ok">+7,9%</strong>
+      </li>
+      <li>
+        <span>Último Trimestre</span>
+        <strong class="ok">+24,1%</strong>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Gráfico de Evolução -->
+  <section class="card" style="grid-column: span 3;">
+    <h2><span class="card-icon">📉</span> Evolução do Saldo (6 meses)</h2>
+    <canvas id="saldoChart"></canvas>
+  </section>
+
+  <!-- Gráfico de Rendimentos -->
+  <section class="card" style="grid-column: span 2;">
+    <h2><span class="card-icon">📊</span> Rendimentos Mensais</h2>
+    <canvas id="barChart"></canvas>
+  </section>
+
+  <!-- Gráfico de Pizza - Distribuição -->
+  <section class="card">
+    <h2><span class="card-icon">🥧</span> Distribuição</h2>
+    <canvas id="pieChart"></canvas>
+  </section>
+
+  <!-- Tarefas - Assistir Vídeos -->
+  <section class="card" style="grid-column: span 2;">
+    <h2><span class="card-icon">▶️</span> Tarefas - Assistir Vídeos</h2>
+    <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 16px;">
+      Assista vídeos e ganhe <strong>0,01 Kz</strong> por cada clique!
+    </p>
+    <ul id="videosList">
+      <li>
+        <span>
+          <strong>Como Investir com Segurança</strong><br>
+          <small style="color: var(--muted);">Duração: 5:30 min</small>
+        </span>
+        <button class="investir-btn" onclick="assistirVideo('https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'Como Investir com Segurança')">
+          ▶️ Assistir
+        </button>
+      </li>
+      <li>
+        <span>
+          <strong>Dicas de Economia</strong><br>
+          <small style="color: var(--muted);">Duração: 8:15 min</small>
+        </span>
+        <button class="investir-btn" onclick="assistirVideo('https://www.youtube.com/watch?v=jNQXAC9IVRw', 'Dicas de Economia')">
+          ▶️ Assistir
+        </button>
+      </li>
+      <li>
+        <span>
+          <strong>Planejamento Financeiro</strong><br>
+          <small style="color: var(--muted);">Duração: 12:00 min</small>
+        </span>
+        <button class="investir-btn" onclick="assistirVideo('https://www.youtube.com/watch?v=9bZkp7q19f0', 'Planejamento Financeiro')">
+          ▶️ Assistir
+        </button>
+      </li>
+      <li>
+        <span>
+          <strong>Investimentos para Iniciantes</strong><br>
+          <small style="color: var(--muted);">Duração: 10:45 min</small>
+        </span>
+        <button class="investir-btn" onclick="assistirVideo('https://www.youtube.com/watch?v=kJQP7kiw5Fk', 'Investimentos para Iniciantes')">
+          ▶️ Assistir
+        </button>
+      </li>
+      <li>
+        <span>
+          <strong>Como Multiplicar Seu Dinheiro</strong><br>
+          <small style="color: var(--muted);">Duração: 7:20 min</small>
+        </span>
+        <button class="investir-btn" onclick="assistirVideo('https://www.youtube.com/watch?v=L_jWHffIx5E', 'Como Multiplicar Seu Dinheiro')">
+          ▶️ Assistir
+        </button>
+      </li>
+    </ul>
+    <div style="margin-top: 16px; padding: 12px; background: var(--bg); border-radius: 8px;">
+      <p style="font-size: 0.85rem; color: var(--muted);">
+        Total de cliques hoje: <strong id="totalCliques">0</strong><br>
+        Ganhos por tarefas: <strong class="ok" id="ganhosTarefas">0,00 Kz</strong>
+      </p>
+    </div>
+  </section>
+
+  <!-- Carteira de Investimentos -->
+  <section class="card" style="grid-column: span 2;">
+    <h2><span class="card-icon">💼</span> Carteira de Investimentos</h2>
+    <ul>
+      <li>
+        <span>
+          <strong>Plano Básico</strong><br>
+          <small style="color: var(--muted);">300.000 Kz investidos</small>
+        </span>
+        <span class="badge success">+6%</span>
+      </li>
+      <li>
+        <span>
+          <strong>Plano Profissional</strong><br>
+          <small style="color: var(--muted);">550.000 Kz investidos</small>
+        </span>
+        <span class="badge success">+12%</span>
+      </li>
+      <li>
+        <span>
+          <strong>Ideias de Negócio</strong><br>
+          <small style="color: var(--muted);">220.000 Kz investidos</small>
+        </span>
+        <span class="badge success">+18%</span>
+      </li>
+    </ul>
+    <button class="depositar" style="width: 100%; margin-top: 12px;" onclick="abrirModalInvestimento()">
+      ➕ Novo Investimento
+    </button>
+  </section>
+
+  <!-- Planos de Investimento -->
+  <section class="card" style="grid-column: span 3;">
+    <h2><span class="card-icon">🎯</span> Níveis de Investimento Disponíveis</h2>
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Nível</th>
+            <th>Investimento (Kz)</th>
+            <th>Retorno Mensal (Kz)</th>
+            <th>Taxa</th>
+            <th>Duração</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge info">Nível 1</span></td>
+            <td>18.000</td>
+            <td>12.000</td>
+            <td class="ok"><strong>+66,7%</strong></td>
+            <td>4 meses</td>
+            <td><button class="investir-btn" onclick="investir(18000, 1)">Investir</button></td>
+          </tr>
+          <tr>
+            <td><span class="badge info">Nível 2</span></td>
+            <td>35.000</td>
+            <td>30.000</td>
+            <td class="ok"><strong>+85,7%</strong></td>
+            <td>4 meses</td>
+            <td><button class="investir-btn" onclick="investir(35000, 2)">Investir</button></td>
+          </tr>
+          <tr>
+            <td><span class="badge info">Nível 3</span></td>
+            <td>75.000</td>
+            <td>70.000</td>
+            <td class="ok"><strong>+93,3%</strong></td>
+            <td>4 meses</td>
+            <td><button class="investir-btn" onclick="investir(75000, 3)">Investir</button></td>
+          </tr>
+          <tr>
+            <td><span class="badge info">Nível 4</span></td>
+            <td>175.000</td>
+            <td>170.000</td>
+            <td class="ok"><strong>+97,1%</strong></td>
+            <td>4 meses</td>
+            <td><button class="investir-btn" onclick="investir(175000, 4)">Investir</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Histórico de Transações -->
+  <section class="card" style="grid-column: span 2;">
+    <h2><span class="card-icon">📜</span> Histórico de Transações</h2>
+    <ul id="historicoLista">
+      <li>
+        <span>Depósito inicial</span>
+        <strong class="ok">+ 1.000 Kz</strong>
+      </li>
+      <li>
+        <span>Investimento - Plano Pro</span>
+        <strong>- 550 Kz</strong>
+      </li>
+      <li>
+        <span>Retirada processada</span>
+        <strong class="error">- 500 Kz</strong>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Enviar Ideia de Negócio -->
+  <section class="card">
+    <h2><span class="card-icon">💡</span> Enviar Ideia de Negócio</h2>
+    <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 12px;">
+      Compartilhe sua ideia e receba investimentos de outros usuários.
+    </p>
+    <form id="ideaForm" onsubmit="enviarIdeia(event)">
+      <input type="text" id="ideaTitulo" placeholder="Título da ideia" required style="margin-bottom: 10px;">
+      <textarea id="ideaTexto" name="idea" placeholder="Descreva sua ideia de negócio em detalhes..." required
+        style="height: 120px; margin-bottom: 10px;"></textarea>
+      <input type="number" id="ideaValor" placeholder="Valor necessário (Kz)" required style="margin-bottom: 10px;">
+      <button type="submit" class="depositar" style="width: 100%;">🚀 Enviar Ideia</button>
+    </form>
+  </section>
+
+  <!-- Alertas e Notificações -->
+  <section class="card" style="grid-column: span 2;">
+    <h2><span class="card-icon">🔔</span> Alertas & Notificações</h2>
+    <div id="alertasContainer">
+      <div class="alert success">📈 Seu investimento rendeu 45,00 Kz hoje</div>
+      <div class="alert warning">⏳ Saque de 500,00 Kz em processamento</div>
+      <div class="alert">✅ Sua conta foi verificada com sucesso</div>
+    </div>
+  </section>
+
+  <!-- Atendimento WhatsApp -->
+  <section class="card">
+    <h2><span class="card-icon">💬</span> Atendimento Financeiro</h2>
+    <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 12px;">
+      Para <strong>depósitos</strong> ou <strong>retiradas</strong>, fale com seu gestor de conta em Angola via WhatsApp.
+    </p>
+    <a href="https://wa.me/244921402002" target="_blank" class="whatsapp-btn">
+      <span style="font-size: 1.2rem;">📱</span>
+      Falar no WhatsApp
+    </a>
+    <p style="margin-top: 12px; font-size: 0.85rem; color: var(--muted);">
+      +244 921 402 002
+    </p>
+  </section>
+
+  <!-- Segurança -->
+  <section class="card">
+    <h2><span class="card-icon">🔒</span> Segurança da Conta</h2>
+    <div class="status">
+      <span class="ok">✔ Conta verificada</span>
+      <span class="ok">✔ Autenticação 2FA ativa</span>
+      <span class="ok">✔ Dados criptografados</span>
+      <span class="ok">✔ Backup automático</span>
+    </div>
+    <button class="depositar" style="width: 100%; margin-top: 16px;" onclick="alert('Configurações de segurança em breve!')">
+      ⚙️ Configurar Segurança
+    </button>
+  </section>
+
+  <!-- Meta de Economia -->
+  <section class="card">
+    <h2><span class="card-icon">🎯</span> Meta de Economia</h2>
+    <div class="stat-card">
+      <div>
+        <div class="stat-label">Meta Mensal</div>
+        <div class="stat-value">16.000 Kz</div>
+      </div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="metaProgress" style="width: 77.8%"></div>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--muted); margin-top: 8px;">
+      Você atingiu <strong>77,8%</strong> da sua meta
+    </p>
+  </section>
+
+</main>
+
+</div>
+<!-- Fim do Dashboard Screen -->
+
+<!-- Modal de Investimento -->
+<div id="modalInvestimento" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Novo Investimento</h2>
+      <button class="close-modal" onclick="fecharModal()">&times;</button>
+    </div>
+    <p style="color: var(--muted); margin-bottom: 16px;">
+      Escolha um plano de investimento e confirme o valor.
+    </p>
+    <form onsubmit="confirmarInvestimento(event)">
+      <select id="planoInvestimento" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px;">
+        <option value="">Selecione um plano...</option>
+        <option value="1">Nível 1 - 18.000 Kz</option>
+        <option value="2">Nível 2 - 35.000 Kz</option>
+        <option value="3">Nível 3 - 75.000 Kz</option>
+        <option value="4">Nível 4 - 175.000 Kz</option>
+      </select>
+      <button type="submit" class="depositar" style="width: 100%;">Confirmar Investimento</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Estado da aplicação
+  let saldoAtual = 12450;
+  let visivel = true;
+  let ganhosHoje = 0;
+  let historico = [];
+  let totalCliques = 0;
+  let ganhosTarefas = 0;
+  let usuarioLogado = null;
+
+  // Sistema de Autenticação
+  function mostrarLogin() {
+    document.getElementById('loginForm').classList.add('active');
+    document.getElementById('registroForm').classList.remove('active');
+  }
+
+  function mostrarRegistro() {
+    document.getElementById('loginForm').classList.remove('active');
+    document.getElementById('registroForm').classList.add('active');
+  }
+
+  function fazerLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value;
+    const senha = document.getElementById('loginSenha').value;
+    
+    // Verificar se existe usuário no localStorage
+    const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+    const usuario = usuarios.find(u => 
+      (u.email === email || u.telefone === email) && u.senha === senha
+    );
+    
+    if (usuario) {
+      // Login bem-sucedido
+      usuarioLogado = usuario;
+      localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+      
+      // Carregar dados do usuário
+      if (usuario.saldo) {
+        saldoAtual = usuario.saldo;
+      }
+      if (usuario.totalCliques) {
+        totalCliques = usuario.totalCliques;
+      }
+      if (usuario.ganhosTarefas) {
+        ganhosTarefas = usuario.ganhosTarefas;
+      }
+      
+      mostrarDashboard();
+      mostrarAlerta(`Bem-vindo de volta, ${usuario.nome}! 🎉`, 'success');
+    } else {
+      // Login falhou
+      alert('❌ Email/telefone ou senha incorretos. Tente novamente.');
+    }
+  }
+
+  function criarConta(event) {
+    event.preventDefault();
+    
+    const nome = document.getElementById('regNome').value;
+    const email = document.getElementById('regEmail').value;
+    const telefone = document.getElementById('regTelefone').value;
+    const senha = document.getElementById('regSenha').value;
+    const confirmarSenha = document.getElementById('regConfirmarSenha').value;
+    
+    // Validações
+    if (senha !== confirmarSenha) {
+      alert('❌ As senhas não coincidem!');
+      return;
+    }
+    
+    if (senha.length < 6) {
+      alert('❌ A senha deve ter no mínimo 6 caracteres!');
+      return;
+    }
+    
+    // Verificar se email já existe
+    const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+    const emailExiste = usuarios.find(u => u.email === email);
+    
+    if (emailExiste) {
+      alert('❌ Este email já está cadastrado!');
+      return;
+    }
+    
+    // Criar novo usuário
+    const novoUsuario = {
+      id: Date.now(),
+      nome: nome,
+      email: email,
+      telefone: telefone,
+      senha: senha,
+      saldo: 0, // Saldo inicial
+      totalCliques: 0,
+      ganhosTarefas: 0,
+      dataCriacao: new Date().toISOString()
+    };
+    
+    usuarios.push(novoUsuario);
+    localStorage.setItem('usuarios', JSON.stringify(usuarios));
+    
+    // Fazer login automático
+    usuarioLogado = novoUsuario;
+    localStorage.setItem('usuarioLogado', JSON.stringify(novoUsuario));
+    
+    saldoAtual = 0;
+    totalCliques = 0;
+    ganhosTarefas = 0;
+    
+    mostrarDashboard();
+    mostrarAlerta(`Conta criada com sucesso! Bem-vindo, ${nome}! 🎊`, 'success');
+  }
+
+  function mostrarDashboard() {
+    // Ocultar tela de auth
+    document.getElementById('authScreen').classList.remove('active');
+    
+    // Mostrar dashboard
+    document.getElementById('dashboardScreen').style.display = 'block';
+    
+    // Atualizar informações do usuário no header
+    if (usuarioLogado) {
+      document.getElementById('userName').innerText = usuarioLogado.nome.split(' ')[0];
+      const inicial = usuarioLogado.nome.charAt(0).toUpperCase();
+      document.getElementById('userAvatar').innerText = inicial;
+    }
+    
+    // Atualizar saldo
+    atualizarSaldo();
+    document.getElementById('totalCliques').innerText = totalCliques;
+    document.getElementById('ganhosTarefas').innerText = ganhosTarefas.toFixed(2) + ' Kz';
+  }
+
+  function fazerLogout() {
+    if (confirm('Deseja realmente sair?')) {
+      // Salvar dados antes de sair
+      salvarDadosUsuario();
+      
+      // Limpar sessão
+      localStorage.removeItem('usuarioLogado');
+      usuarioLogado = null;
+      
+      // Voltar para tela de login
+      document.getElementById('authScreen').classList.add('active');
+      document.getElementById('dashboardScreen').style.display = 'none';
+      
+      // Limpar formulários
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginSenha').value = '';
+      
+      mostrarLogin();
+    }
+  }
+
+  function salvarDadosUsuario() {
+    if (!usuarioLogado) return;
+    
+    // Atualizar dados do usuário
+    const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+    const index = usuarios.findIndex(u => u.id === usuarioLogado.id);
+    
+    if (index !== -1) {
+      usuarios[index].saldo = saldoAtual;
+      usuarios[index].totalCliques = totalCliques;
+      usuarios[index].ganhosTarefas = ganhosTarefas;
+      usuarios[index].ultimoAcesso = new Date().toISOString();
+      
+      localStorage.setItem('usuarios', JSON.stringify(usuarios));
+      localStorage.setItem('usuarioLogado', JSON.stringify(usuarios[index]));
+    }
+  }
+
+  // Verificar se já está logado ao carregar página
+  window.addEventListener('load', function() {
+    const usuarioSalvo = localStorage.getItem('usuarioLogado');
+    
+    if (usuarioSalvo) {
+      usuarioLogado = JSON.parse(usuarioSalvo);
+      
+      // Carregar dados
+      if (usuarioLogado.saldo !== undefined) {
+        saldoAtual = usuarioLogado.saldo;
+      }
+      if (usuarioLogado.totalCliques) {
+        totalCliques = usuarioLogado.totalCliques;
+      }
+      if (usuarioLogado.ganhosTarefas) {
+        ganhosTarefas = usuarioLogado.ganhosTarefas;
+      }
+      
+      mostrarDashboard();
+    }
+  });
+
+  // Salvar dados automaticamente a cada 30 segundos
+  setInterval(() => {
+    if (usuarioLogado) {
+      salvarDadosUsuario();
+    }
+  }, 30000);
+
+  // Salvar dados antes de fechar a página
+  window.addEventListener('beforeunload', function() {
+    if (usuarioLogado) {
+      salvarDadosUsuario();
+    }
+  });
+
+  // Atualizar saldo na interface
+  function atualizarSaldo() {
+    document.getElementById('saldo').innerText = saldoAtual.toLocaleString('pt-BR', {minimumFractionDigits: 2}) + ' Kz';
+    const percentual = (saldoAtual / 16000) * 100;
+    document.getElementById('metaProgress').style.width = Math.min(percentual, 100) + '%';
+  }
+
+  // Toggle visibilidade do saldo
+  function toggleSaldo() {
+    const saldoEl = document.getElementById('saldo');
+    const btnEl = event.target;
+    visivel = !visivel;
+    
+    if (visivel) {
+      atualizarSaldo();
+      btnEl.innerText = '👁️ Ocultar';
+    } else {
+      saldoEl.innerText = '••••••';
+      btnEl.innerText = '👁️ Mostrar';
+    }
+  }
+
+  // Função para assistir vídeo e ganhar por clique
+  function assistirVideo(url, titulo) {
+    // Adicionar 0.01 Kz ao saldo
+    saldoAtual += 0.01;
+    totalCliques++;
+    ganhosTarefas += 0.01;
+    
+    // Atualizar interface
+    atualizarSaldo();
+    document.getElementById('totalCliques').innerText = totalCliques;
+    document.getElementById('ganhosTarefas').innerText = ganhosTarefas.toFixed(2) + ' Kz';
+    
+    // Adicionar ao histórico
+    adicionarHistorico(`Vídeo assistido: ${titulo}`, 0.01, 'ganho');
+    
+    // Mostrar alerta
+    mostrarAlerta(`+0,01 Kz ganho ao assistir "${titulo}"! 🎥`, 'success');
+    
+    // Abrir vídeo em nova aba
+    window.open(url, '_blank');
+  }
+
+  // Adicionar ao histórico
+  function adicionarHistorico(texto, valor, tipo) {
+    const historicoEl = document.getElementById('historicoLista');
+    const li = document.createElement('li');
+    
+    const tipoClass = tipo === 'ganho' ? 'ok' : tipo === 'perda' ? 'error' : '';
+    const simbolo = tipo === 'ganho' ? '+ ' : tipo === 'perda' ? '- ' : '';
+    
+    li.innerHTML = `
+      <span>${texto}</span>
+      <strong class="${tipoClass}">${simbolo}${Math.abs(valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})} Kz</strong>
+    `;
+    
+    historicoEl.insertBefore(li, historicoEl.firstChild);
+    
+    // Limitar histórico a 10 itens
+    if (historicoEl.children.length > 10) {
+      historicoEl.removeChild(historicoEl.lastChild);
+    }
+    
+    // Animação
+    li.style.animation = 'slideIn 0.3s ease';
+  }
+
+  // Função de depósito
+  function depositar() {
+    const valorInput = document.getElementById('valor');
+    const valor = parseFloat(valorInput.value);
+    
+    if (!valor || valor <= 0) {
+      mostrarAlerta('Por favor, insira um valor válido', 'warning');
+      return;
+    }
+    
+    saldoAtual += valor;
+    atualizarSaldo();
+    adicionarHistorico('Depósito realizado', valor, 'ganho');
+    valorInput.value = '';
+    mostrarAlerta(`Depósito de ${valor.toFixed(2)} Kz realizado com sucesso! 💰`, 'success');
+  }
+
+  // Função de retirada
+  function retirar() {
+    const valorInput = document.getElementById('valor');
+    const valor = parseFloat(valorInput.value);
+    
+    if (!valor || valor <= 0) {
+      mostrarAlerta('Por favor, insira um valor válido', 'warning');
+      return;
+    }
+    
+    if (valor > saldoAtual) {
+      mostrarAlerta('Saldo insuficiente para esta retirada', 'warning');
+      return;
+    }
+    
+    saldoAtual -= valor;
+    atualizarSaldo();
+    adicionarHistorico('Retirada solicitada', valor, 'perda');
+    valorInput.value = '';
+    mostrarAlerta(`Retirada de ${valor.toFixed(2)} Kz solicitada com sucesso! Entre em contato pelo WhatsApp para processamento. 💸`, 'success');
+  }
+
+  // Função de investimento
+  function investir(valor, nivel) {
+    if (confirm(`Deseja investir ${valor.toLocaleString('pt-BR')} Kz no Nível ${nivel}?`)) {
+      adicionarHistorico(`Investimento Nível ${nivel}`, valor, 'perda');
+      mostrarAlerta(`Investimento de ${valor.toLocaleString('pt-BR')} Kz no Nível ${nivel} confirmado! 🎯`, 'success');
+      
+      // Simular adição à carteira
+      setTimeout(() => {
+        mostrarAlerta('Seu investimento foi ativado e começará a render em breve', 'success');
+      }, 2000);
+    }
+  }
+
+  // Enviar ideia de negócio
+  function enviarIdeia(event) {
+    event.preventDefault();
+    
+    const titulo = document.getElementById('ideaTitulo').value;
+    const texto = document.getElementById('ideaTexto').value;
+    const valor = document.getElementById('ideaValor').value;
+    
+    if (texto.length < 20) {
+      mostrarAlerta('Por favor, descreva sua ideia com mais detalhes (mínimo 20 caracteres)', 'warning');
+      return;
+    }
+    
+    mostrarAlerta(`Ideia "${titulo}" enviada para análise! Você será notificado quando houver interesse de investidores. 💡`, 'success');
+    
+    document.getElementById('ideaForm').reset();
+  }
+
+  // Mostrar alertas
+  function mostrarAlerta(mensagem, tipo = 'info') {
+    const alertasContainer = document.getElementById('alertasContainer');
+    const alert = document.createElement('div');
+    alert.className = `alert ${tipo}`;
+    
+    const icones = {
+      success: '✅',
+      warning: '⚠️',
+      info: 'ℹ️',
+      error: '❌'
+    };
+    
+    alert.innerHTML = `${icones[tipo] || 'ℹ️'} ${mensagem}`;
+    alertasContainer.insertBefore(alert, alertasContainer.firstChild);
+    
+    // Remover alerta antigo se houver mais de 5
+    if (alertasContainer.children.length > 5) {
+      alertasContainer.removeChild(alertasContainer.lastChild);
+    }
+  }
+
+  // Modal
+  function abrirModalInvestimento() {
+    document.getElementById('modalInvestimento').classList.add('active');
+  }
+
+  function fecharModal() {
+    document.getElementById('modalInvestimento').classList.remove('active');
+  }
+
+  function confirmarInvestimento(event) {
+    event.preventDefault();
+    const plano = document.getElementById('planoInvestimento').value;
+    
+    if (!plano) {
+      alert('Por favor, selecione um plano');
+      return;
+    }
+    
+    const valores = {
+      '1': 18000,
+      '2': 35000,
+      '3': 75000,
+      '4': 175000
+    };
+    
+    investir(valores[plano], plano);
+    fecharModal();
+  }
+
+  // Notificações
+  function mostrarNotificacoes() {
+    alert('🔔 Você tem 3 notificações:\n\n1. Rendimento diário creditado\n2. Novo plano de investimento disponível\n3. Saque em processamento');
+  }
+
+  // Simulação de rendimento automático
+  setInterval(() => {
+    const ganho = saldoAtual * 0.0005; // 0.05% a cada 15 segundos
+    saldoAtual += ganho;
+    ganhosHoje += ganho;
+    atualizarSaldo();
+    document.getElementById('ganhosHoje').innerText = `+${ganhosHoje.toFixed(2)} Kz`;
+  }, 15000);
+
+  // Inicialização
+  atualizarSaldo();
+
+  // Gráfico de Evolução do Saldo
+  new Chart(document.getElementById('saldoChart'), {
+    type: 'line',
+    data: {
+      labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho'],
+      datasets: [{
+        label: 'Saldo (Kz)',
+        data: [5000, 6200, 7000, 8900, 11000, 12450],
+        borderColor: '#4f46e5',
+        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return value.toLocaleString('pt-BR') + ' Kz';
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Gráfico de Rendimentos
+  new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+      datasets: [{
+        label: 'Rendimento (Kz)',
+        data: [200, 350, 420, 610, 780, 900],
+        backgroundColor: '#22c55e'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return value + ' Kz';
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Gráfico de Pizza - Distribuição
+  new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Plano Básico', 'Plano Pro', 'Ideias', 'Disponível'],
+      datasets: [{
+        data: [300, 550, 220, 11380],
+        backgroundColor: [
+          '#4f46e5',
+          '#22c55e',
+          '#f59e0b',
+          '#e5e7eb'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+
+  // Fechar modal ao clicar fora
+  window.onclick = function(event) {
+    const modal = document.getElementById('modalInvestimento');
+    if (event.target === modal) {
+      fecharModal();
+    }
+  }
+</script>
+
+</body>
+</html>
