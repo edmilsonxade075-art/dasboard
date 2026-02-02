@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Plataforma-Simples | Dashboard</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* ======= SEU CSS ORIGINAL (INALTERADO) ======= */
+    :root {
+      --primary: #4f46e5;
+      --secondary: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), #6d28d9);
+      color: #fff;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .header-actions a {
+      color: #fff;
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.15);
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .saldo {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    button {
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .depositar { background: var(--secondary); color: white; }
+    .retirar { background: var(--primary); color: white; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- 🔐 LOGIN / REGISTRO -->
+<div id="authModal" class="modal active">
+  <div class="modal-content">
+    <h2 id="authTitle">Login</h2>
+    <input id="authUser" placeholder="Usuário" style="margin:10px 0;width:100%;padding:10px">
+    <input id="authPass" type="password" placeholder="Senha" style="margin-bottom:10px;width:100%;padding:10px">
+    <button class="depositar" style="width:100%" onclick="login()">Entrar</button>
+    <p style="margin-top:10px;text-align:center;font-size:.85rem">
+      Não tem conta?
+      <a href="#" onclick="mostrarRegistro()">Criar conta</a>
+    </p>
+  </div>
+</div>
+
+<header>
+  <h1><div class="logo">💰</div> Workhome</h1>
+  <div class="header-actions">
+    <a href="#" onclick="logout()">🚪 Sair</a>
+    <div class="user-info">
+      <div class="user-avatar">U</div>
+      <span>Usuário</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="card">
+    <h2>Saldo Total</h2>
+    <div id="saldo" class="saldo">12.450,00 Kz</div>
+    <input id="valor" type="number" placeholder="Valor">
+    <button class="depositar" onclick="depositar()">Depositar</button>
+    <button class="retirar" onclick="retirar()">Retirar</button>
+  </section>
+</main>
+
+<script>
+/* ===== LOGIN ===== */
+const authModal = document.getElementById("authModal");
+
+(function(){
+  const u = localStorage.getItem("usuarioLogado");
+  if(u){
+    authModal.classList.remove("active");
+    document.querySelector(".user-avatar").innerText = u[0].toUpperCase();
+    document.querySelector(".user-info span").innerText = u;
+  }
+})();
+
+function login(){
+  const user = authUser.value;
+  const pass = authPass.value;
+  const users = JSON.parse(localStorage.getItem("usuarios")) || [];
+  const ok = users.find(u=>u.user===user && u.pass===pass);
+  if(!ok) return alert("Login inválido");
+  localStorage.setItem("usuarioLogado", user);
+  location.reload();
+}
+
+function mostrarRegistro(){
+  authTitle.innerText="Criar Conta";
+  authModal.querySelector("button").innerText="Registrar";
+  authModal.querySelector("button").onclick=registrar;
+}
+
+function registrar(){
+  const users = JSON.parse(localStorage.getItem("usuarios"))||[];
+  users.push({user:authUser.value, pass:authPass.value});
+  localStorage.setItem("usuarios", JSON.stringify(users));
+  alert("Conta criada!");
+  location.reload();
+}
+
+function logout(){
+  localStorage.removeItem("usuarioLogado");
+  location.reload();
+}
+
+/* ===== SEU JS ORIGINAL (SIMPLIFICADO AQUI) ===== */
+let saldoAtual = 12450;
+function atualizarSaldo(){
+  saldo.innerText = saldoAtual.toLocaleString("pt-BR",{minimumFractionDigits:2})+" Kz";
+}
+function depositar(){
+  saldoAtual += Number(valor.value||0);
+  atualizarSaldo();
+}
+function retirar(){
+  saldoAtual -= Number(valor.value||0);
+  atualizarSaldo();
+}
+atualizarSaldo();
+</script>
+
+</body>
+</html>
